@@ -1,0 +1,15 @@
+FROM rockylinux:8
+
+RUN yum -y groupinstall 'Development Tools' && \
+    yum -y install rpmdevtools sudo yum-utils && \
+    yum -y install https://mirrors.rpmfusion.org/free/el/rpmfusion-free-release-$(rpm -E %rhel).noarch.rpm \
+                   https://mirrors.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-$(rpm -E %rhel).noarch.rpm && \
+    yum clean all && \
+    yum-config-manager --disable epel,rpmfusion-free-updates,rpmfusion-nonfree-updates
+
+RUN useradd makerpm && \
+    echo 'makerpm ALL=(ALL) NOPASSWD: ALL' >/etc/sudoers.d/makerpm
+
+USER makerpm
+RUN rpmdev-setuptree
+WORKDIR /home/makerpm/rpmbuild/

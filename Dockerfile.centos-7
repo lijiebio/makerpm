@@ -1,0 +1,17 @@
+FROM centos:7
+
+RUN yum -y groupinstall 'Development Tools' && \
+    yum -y install rpmdevtools sudo && \
+    yum -y install https://packages.endpointdev.com/rhel/7/os/x86_64/endpoint-repo.x86_64.rpm && \
+    yum -y install git && \
+    yum -y install https://mirrors.rpmfusion.org/free/el/rpmfusion-free-release-$(rpm -E %rhel).noarch.rpm \
+                   https://mirrors.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-$(rpm -E %rhel).noarch.rpm && \
+    yum clean all && \
+    yum-config-manager --disable endpoint,epel,rpmfusion-free-updates,rpmfusion-nonfree-updates
+
+RUN useradd makerpm && \
+    echo 'makerpm ALL=(ALL) NOPASSWD: ALL' >/etc/sudoers.d/makerpm
+
+USER makerpm
+RUN rpmdev-setuptree
+WORKDIR /home/makerpm/rpmbuild/
